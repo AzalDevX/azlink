@@ -1,13 +1,65 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { Image } from 'astro:assets';
 ---
 
-<Layout title="404 - Page not found">
-	<main class="container mx-auto px-4 py-8 text-center">
-		<h1 class="text-4xl font-bold mb-4">404 - Page not found</h1>
-		<p class="mb-8">The page you are looking for doesn't exist.</p>
-		<a href="/" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-			Go back to home
-		</a>
-	</main>
+<Layout title="404 - Página No Encontrada | AzLink">
+  <main class="min-h-screen bg-gradient-to-br from-primary-100 to-secondary-100 p-8 flex flex-col justify-center items-center overflow-hidden">
+    <div class="relative">
+      <h1 class="text-9xl font-extrabold text-primary-600 mb-4 animate-pulse-slow">404</h1>
+      <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+        <span class="text-9xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-secondary-400 to-secondary-600 animate-ping opacity-70" style="animation-duration: 3s;">
+          404
+        </span>
+      </div>
+    </div>
+    <p class="text-2xl text-gray-700 mb-8 animate-fade-in">
+		¡Ups! Este enlace parece haberse desvanecido en el vacío digital.
+	</p>
+    <div class="relative group">
+      <a href="/" class="bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-bold py-3 px-6 rounded-full text-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-xl inline-block">
+        Teletransportarse al Inicio
+      </a>
+      <a href="/" class="absolute -inset-0.5 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse-slow"></a>
+    </div>
+  </main>
 </Layout>
+
+<style>
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+</style>
+
+<script>
+  function crearEfectoGlitch() {
+    const contenedor = document.querySelector('main');
+    const textoGlitch = document.createElement('div');
+    textoGlitch.className = 'absolute text-9xl font-extrabold text-primary-600 opacity-0 animate-float';
+    textoGlitch.style.userSelect = 'none';
+    textoGlitch.style.pointerEvents = 'none';
+    textoGlitch.textContent = '404';
+
+    contenedor.appendChild(textoGlitch);
+
+    setInterval(() => {
+      const x = Math.random() * window.innerWidth;
+      const y = Math.random() * window.innerHeight;
+      textoGlitch.style.left = `${x}px`;
+      textoGlitch.style.top = `${y}px`;
+      textoGlitch.style.opacity = '0.1';
+      textoGlitch.style.transform = `scale(${Math.random() * 0.5 + 0.5})`;
+      
+      setTimeout(() => {
+        textoGlitch.style.opacity = '0';
+      }, 100);
+    }, 2000);
+  }
+
+  document.addEventListener('astro:page-load', crearEfectoGlitch);
+</script>
