@@ -1,41 +1,75 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Card from '../components/Card.astro';
+import links from '../data/links.json';
 ---
 
-<Layout title="Astro + TailwindCSS Template">
-  <main class="max-w-4xl mx-auto p-6 pt-16">
-    <h1 class="text-text-primary text-5xl font-extrabold text-center mb-8">Bienvenido a <strong class="text-purple-300">Astro</strong> + <strong class="text-teal-300">TailwindCSS</strong></h1>
-    <p class="text-center text-xl mb-12">
-      ¡Empieza con <code class="bg-code-background border-1 border-code-border px-2 py-1 rounded-md">src/pages</code> para codear!<br />
-      <strong class="text-accent-primary">Objetivo:</strong> Facilitar la creación de proyectos combinados con ambas tecnologías.
-    </p>
-    <ul role="list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <Card
-        href="https://astro.build/"
-        title="Inicia tu Proyecto"
-        body="Comienza a desarrollar tu idea usando este template como base. ¡Explora las posibilidades!"
-      />
-      <Card
-        href="https://docs.astro.build/en/getting-started/"
-        title="Documentación"
-        body="Aprende a integrar nuevas funcionalidades, y consulta las guías para personalizar el template."
-      />
-      <Card
-        href="https://tailwindcss.com/docs/guides/astro"
-        title="Aprende Astro y TailwindCSS"
-        body="Descubre cómo aprovechar al máximo Astro y TailwindCSS en tus proyectos."
-      />
-      <Card
-        href="https://github.com/azaldevx/astro-template"
-        title="Contribuir al Proyecto"
-        body="¿Tienes ideas o mejoras? Colabora en el desarrollo de este template en GitHub."
-      />
-    </ul>
+<Layout title="AzLink - Award-Winning URL Shortener">
+  <main class="min-h-screen bg-gradient-to-br from-primary-100 to-secondary-100 p-8 flex flex-col justify-center items-center">
+    <h1 class="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-secondary-600 mb-12 animate-pulse-slow">
+      AzLink
+    </h1>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
+      {Object.entries(links).map(([key, value], index) => (
+        <a href={`/${key}`} class="group perspective" data-index={index}>
+          <div class="relative bg-white rounded-xl shadow-xl p-6 transition-all duration-500 ease-out hover:scale-105 hover:rotate-1 hover:shadow-2xl transform preserve-3d">
+            <div class="absolute inset-0 bg-gradient-to-br from-primary-200 to-secondary-200 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl -z-10"></div>
+            <h2 class="text-3xl font-bold mb-4 text-primary-700 group-hover:text-primary-900 transition-colors duration-300">{key}</h2>
+            <p class="text-sm text-gray-600 group-hover:text-gray-800 transition-colors duration-300 truncate">{value}</p>
+            <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-secondary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
   </main>
-
-  <footer class="mt-12 text-center text-footer">
-    <p>Creado por <a href="https://www.linkedin.com/in/azaldev" class="text-accent-primary hover:underline">AzalDevX</a> - 
-    <a href="https://github.com/azaldevx/astro-template" class="text-accent-primary hover:underline">GitHub</a></p>
-  </footer>
 </Layout>
+
+<script>
+  function animateCards() {
+    const cards = document.querySelectorAll('.perspective');
+    cards.forEach((card, index) => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(20px)';
+      setTimeout(() => {
+        card.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+      }, index * 100);
+    });
+  }
+
+  document.addEventListener('astro:page-load', animateCards);
+
+  // Tilt effect
+  document.querySelectorAll('.perspective').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = (y - centerY) / 10;
+      const rotateY = (centerX - x) / 10;
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+</script>
+
+<style>
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+  }
+
+  .perspective:hover {
+    animation: float 3s ease-in-out infinite;
+  }
+</style>
