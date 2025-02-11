@@ -1,54 +1,90 @@
 ---
-// src/components/Card.astro
 export interface Props {
   linkKey: string;
-  linkValue: string;
+  title: string;
+  url: string;
+  clicks: number;
   index: number;
 }
 
-const { linkKey, linkValue, index } = Astro.props;
+const { linkKey, title, url, clicks, index } = Astro.props;
+const displayUrl = new URL(url).hostname.replace('www.', '');
 ---
 
-<a href={`/${linkKey}`} class="group perspective" data-index={index}>
-  <div class="relative bg-white rounded-xl shadow-xl p-6 transition-all duration-500 ease-out hover:scale-105 hover:rotate-1 hover:shadow-2xl transform preserve-3d">
-    <div class="absolute inset-0 bg-gradient-to-br from-beige-200 to-chocolate-200 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl -z-10"></div>
-    <h2 class="text-3xl font-bold mb-4 text-chocolate-700 group-hover:text-chocolate-900 transition-colors duration-300">{linkKey}</h2>
-    <p class="text-sm text-chocolate-600 group-hover:text-chocolate-800 transition-colors duration-300 truncate">{linkValue}</p>
-    <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-beige-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-      </svg>
+<a 
+  href={`/${linkKey}`} 
+  class="group perspective block link-card transition-transform duration-200 scale-100" 
+  data-index={index}
+  data-title={title}
+  data-url={url}
+  data-shortcode={linkKey}
+>
+  <div class="relative bg-black rounded-xl shadow-xl overflow-hidden transition-all duration-500 ease-out hover:scale-105 hover:shadow-2xl transform preserve-3d border border-zinc-800">
+    {/* Barra superior con el shortcode */}
+    <div class="bg-gradient-to-r from-zinc-900 to-zinc-800 px-4 py-2 flex items-center justify-between border-b border-zinc-700">
+      <div class="flex items-center space-x-2">
+        <span class="text-chocolate-300 font-mono font-bold">/{linkKey}</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="bg-black/30 rounded-full px-3 py-1 text-xs text-chocolate-300 font-medium flex items-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+          </svg>
+          {clicks}
+        </span>
+      </div>
     </div>
+
+    {/* Contenido principal */}
+    <div class="p-6">
+      {/* Título */}
+      <h2 class="text-xl font-bold text-chocolate-300 mb-3 group-hover:text-chocolate-200 transition-colors duration-300">
+        {title}
+      </h2>
+
+      {/* URL de destino */}
+      <div class="flex items-center space-x-2 bg-zinc-900/50 rounded-lg p-3 group-hover:bg-zinc-800/50 transition-colors duration-300 border border-zinc-800">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-chocolate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+        <span class="text-sm text-chocolate-400 truncate font-medium">
+          {displayUrl}
+        </span>
+      </div>
+    </div>
+
+    {/* Footer con efecto hover */}
+    <div class="px-6 py-4 bg-gradient-to-r from-zinc-900 to-zinc-800 flex items-center justify-between border-t border-zinc-700">
+      <span class="text-xs text-chocolate-400 font-medium">Click para visitar</span>
+      <div class="transform transition-transform duration-300 group-hover:translate-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-chocolate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+      </div>
+    </div>
+
+    {/* Overlay de hover */}
+    <div class="absolute inset-0 bg-gradient-to-br from-chocolate-500/10 to-zinc-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
   </div>
 </a>
 
 <style>
-  @keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0px); }
+  .perspective {
+    perspective: 1000px;
   }
 
-  .perspective:hover {
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0px) rotateX(0deg) rotateY(0deg); }
+    50% { transform: translateY(-10px) rotateX(2deg) rotateY(-2deg); }
+    100% { transform: translateY(0px) rotateX(0deg) rotateY(0deg); }
+  }
+
+  .perspective:hover .preserve-3d {
     animation: float 3s ease-in-out infinite;
   }
 </style>
 
-<script>
-  const card = document.currentScript.parentElement;
-  
-  card.addEventListener('mousemove', e => {
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const rotateX = (y - centerY) / 10;
-    const rotateY = (centerX - x) / 10;
-    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
-  });
-
-  card.addEventListener('mouseleave', () => {
-    card.style.transform = '';
-  });
-</script>

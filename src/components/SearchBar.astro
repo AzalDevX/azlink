@@ -1,0 +1,225 @@
+---
+import SearchBarCard from './SearchBarCard.astro';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../lib/firebase';
+
+// Obtener los links y debugear los datos
+const querySnapshot = await getDocs(collection(db, 'links'));
+const links = querySnapshot.docs.map(doc => {
+  console.log('Document ID:', doc.id);
+  console.log('Document Data:', doc.data());
+  
+  // Normalizar los datos
+  const data = doc.data();
+  return {
+    id: doc.id,
+    shortCode: data.shortCode || doc.id,
+    title: data.title || doc.id, // Usar el ID como título si no hay título
+    url: data.url || '',
+    clicks: data.clicks || 0
+  };
+});
+---
+
+<div class="fixed top-4 right-4 z-50">
+  {/* Botón de búsqueda */}
+  <button
+    id="search-trigger"
+    class="p-2 rounded-full bg-zinc-900/80 border border-zinc-700 hover:bg-zinc-800/80 transition-all duration-200 backdrop-blur-sm"
+    aria-label="Abrir búsqueda"
+  >
+    <svg 
+      class="h-5 w-5 text-chocolate-400" 
+      xmlns="http://www.w3.org/2000/svg" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      stroke-width="2" 
+      stroke-linecap="round" 
+      stroke-linejoin="round"
+    >
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+  </button>
+
+  {/* Modal de búsqueda */}
+  <div
+    id="search-modal"
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200"
+    aria-hidden="true"
+  >
+    <div class="fixed inset-0 flex items-start justify-center pt-16 px-4">
+      <div class="w-full max-w-2xl bg-zinc-900 rounded-lg border border-zinc-700 shadow-2xl transform transition-all duration-200 scale-95 opacity-0" id="search-container">
+        {/* Barra de búsqueda */}
+        <div class="relative">
+          <input 
+            type="search" 
+            placeholder="Buscar por título o URL..." 
+            class="w-full h-14 bg-transparent text-chocolate-300 placeholder:text-zinc-600 rounded-t-lg px-4 py-2 border-0 focus:outline-none text-lg"
+            id="search-input"
+          />
+          <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 text-zinc-600">
+            <kbd class="hidden sm:inline-flex items-center gap-1 px-2 py-1 text-xs font-mono font-medium text-zinc-600 bg-zinc-800 rounded border border-zinc-700">
+              <span class="text-xs">⌃</span>B
+            </kbd>
+            <span class="text-sm">para buscar</span>
+          </div>
+        </div>
+        
+        {/* Resultados */}
+        <div class="max-h-[60vh] overflow-y-auto" id="search-results">
+          <div class="p-4 text-zinc-500 text-sm text-center" id="empty-state">
+            Empieza a escribir para buscar...
+          </div>
+          <div id="results-container" class="hidden">
+            {links.map(link => (
+              <div 
+                class="search-result hidden" 
+                data-title={link.title?.toLowerCase() || ''} 
+                data-url={link.url?.toLowerCase() || ''} 
+                data-shortcode={link.shortCode?.toLowerCase() || ''}
+              >
+                <SearchBarCard
+                  linkKey={link.shortCode}
+                  title={link.title}
+                  url={link.url}
+                  clicks={link.clicks}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const searchTrigger = document.getElementById('search-trigger');
+  const searchModal = document.getElementById('search-modal');
+  const searchContainer = document.getElementById('search-container');
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const resultsContainer = document.getElementById('results-container');
+  const emptyState = document.getElementById('empty-state');
+  const searchResults = document.querySelectorAll('.search-result');
+  let isSearchOpen = false;
+
+  // Función para abrir/cerrar el buscador
+  function toggleSearch() {
+    isSearchOpen = !isSearchOpen;
+    
+    if (isSearchOpen) {
+      // Abrir búsqueda
+      searchModal?.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        searchContainer?.classList.remove('scale-95', 'opacity-0');
+        searchInput?.focus();
+      }, 10);
+    } else {
+      // Cerrar búsqueda
+      searchContainer?.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        searchModal?.classList.add('opacity-0', 'pointer-events-none');
+        searchInput!.value = '';
+        filterResults(''); // Resetear la búsqueda
+      }, 200);
+    }
+  }
+
+  // Event Listeners
+  searchTrigger?.addEventListener('click', toggleSearch);
+  
+  searchModal?.addEventListener('click', (e) => {
+    if (e.target === searchModal) {
+      toggleSearch();
+    }
+  });
+
+  // Atajo de teclado (Ctrl + B)
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+      e.preventDefault();
+      toggleSearch();
+    }
+    // Cerrar con Escape
+    if (e.key === 'Escape' && isSearchOpen) {
+      toggleSearch();
+    }
+  });
+
+  // Lógica de búsqueda
+  function debounce(func: Function, delay: number) {
+    let timeoutId: NodeJS.Timeout;
+    return function executedFunction(...args: any[]) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func.apply(this, args), delay);
+    };
+  }
+
+  const filterResults = (searchTerm: string) => {
+    const normalizedSearch = searchTerm.toLowerCase();
+    let hasResults = false;
+
+    if (searchTerm === '') {
+      resultsContainer?.classList.add('hidden');
+      emptyState?.classList.remove('hidden');
+      return;
+    }
+
+    resultsContainer?.classList.remove('hidden');
+    emptyState?.classList.add('hidden');
+
+    searchResults.forEach((result) => {
+      const title = result.getAttribute('data-title') || '';
+      const url = result.getAttribute('data-url') || '';
+      const shortCode = result.getAttribute('data-shortcode') || '';
+      
+      const matches = 
+        title.includes(normalizedSearch) || 
+        url.includes(normalizedSearch) || 
+        shortCode.includes(normalizedSearch);
+
+      if (matches) {
+        result.classList.remove('hidden');
+        hasResults = true;
+      } else {
+        result.classList.add('hidden');
+      }
+    });
+
+    if (!hasResults) {
+      emptyState!.textContent = 'No se encontraron resultados';
+      emptyState?.classList.remove('hidden');
+    } else {
+      emptyState?.classList.add('hidden');
+    }
+  };
+
+  const debouncedFilter = debounce(filterResults, 300);
+
+  searchInput?.addEventListener('input', (e) => {
+    const target = e.target as HTMLInputElement;
+    debouncedFilter(target.value);
+  });
+</script>
+
+<style>
+  /* Estilo para el scrollbar en los resultados */
+  #search-results::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  #search-results::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  #search-results::-webkit-scrollbar-thumb {
+    background-color: rgb(63 63 70 / 0.5);
+    border-radius: 4px;
+  }
+
+  #search-results::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(63 63 70 / 0.8);
+  }
+</style>

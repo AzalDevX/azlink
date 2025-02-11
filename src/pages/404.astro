@@ -1,65 +1,261 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { Image } from 'astro:assets';
 ---
 
-<Layout title="404 - Página No Encontrada | AzLink">
-  <main class="min-h-screen bg-gradient-to-br from-beige-100 to-chocolate-100 p-8 flex flex-col justify-center items-center overflow-hidden">
-    <div class="relative">
-      <h1 class="text-9xl font-extrabold text-chocolate-600 mb-4 animate-pulse-slow">404</h1>
-      <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center">
-        <span class="text-9xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-beige-400 to-beige-600 animate-ping opacity-70" style="animation-duration: 3s;">
-          404
-        </span>
+<Layout title="404 - Página no encontrada | AzLink">
+  <main class="relative min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-8 overflow-hidden">
+    {/* Fondo con efecto de partículas */}
+    <div class="absolute inset-0">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(68,18,8,0.1),rgba(0,0,0,0))]"></div>
+      <div id="particles" class="absolute inset-0"></div>
+    </div>
+
+    {/* Contenedor principal */}
+    <div class="relative z-10 flex flex-col items-center justify-center text-center max-w-md mx-auto">
+      {/* Animación de error */}
+      <div class="relative mb-12">
+        {/* Anillos de error */}
+        <div class="relative size-32">
+          {[0, 1, 2].map((i) => (
+            <div 
+              class={`absolute inset-0 origin-[50%_50%] animate-pulse`} 
+              style={`animation-duration: ${2 + i}s`}
+            >
+              <div class={`h-full w-full rounded-full border-2 border-chocolate-400/30 ${i === 1 ? 'border-dashed' : ''}`}></div>
+            </div>
+          ))}
+          
+          {/* Círculo central con X */}
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="relative size-12">
+              <div class="absolute inset-0 rounded-full bg-chocolate-400/20 animate-ping"></div>
+              <div class="relative size-full rounded-full bg-chocolate-400/30 backdrop-blur-sm flex items-center justify-center">
+                <div class="relative size-6">
+                  {/* X animada */}
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="h-0.5 w-6 bg-chocolate-300 rotate-45 animate-glitch-1"></div>
+                    <div class="h-0.5 w-6 bg-chocolate-300 -rotate-45 animate-glitch-2"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Líneas de error */}
+        <div class="absolute -inset-4 -z-10">
+          {[0, 45, 90, 135].map((rotation) => (
+            <div 
+              class="absolute inset-0 origin-center"
+              style={`transform: rotate(${rotation}deg)`}
+            >
+              <div class="h-full w-[1px] mx-auto bg-gradient-to-b from-transparent via-chocolate-400/20 to-transparent"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Texto de error con efectos */}
+      <div class="space-y-6 mb-8">
+        <div class="space-y-2">
+          <h1 class="text-7xl font-bold text-chocolate-400 glitch-text" data-text="404">
+            404
+          </h1>
+          <p class="text-2xl font-semibold text-chocolate-300">
+            Link no encontrado
+          </p>
+        </div>
+        <p class="text-zinc-400 text-sm max-w-sm mx-auto">
+          Parece que te has aventurado en un rincón inexplorado del espacio digital. 
+          Este link no existe o ha sido movido a otra dimensión.
+        </p>
+      </div>
+
+      {/* Botón de regreso */}
+      <div class="relative group">
+        <a 
+          href="/"
+          class="relative z-10 px-6 py-3 text-chocolate-300 transition-colors duration-300 hover:text-chocolate-200 flex items-center gap-2"
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            class="size-4 transition-transform duration-300 group-hover:-translate-x-1" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            stroke-width="2" 
+            stroke-linecap="round" 
+            stroke-linejoin="round"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          <span>Volver al inicio</span>
+        </a>
+        {/* Efecto de hover del botón */}
+        <div class="absolute inset-0 bg-zinc-900 border border-zinc-800 rounded-lg transition-transform duration-300 group-hover:scale-105"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-chocolate-900/20 to-chocolate-800/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </div>
     </div>
-    <p class="text-2xl text-chocolate-700 mb-8 animate-fade-in">
-		¡Ups! Este enlace parece haberse desvanecido en el vacío digital.
-	</p>
-    <div class="relative group">
-      <a href="/" class="bg-gradient-to-r from-chocolate-500 to-beige-500 text-white font-bold py-3 px-6 rounded-full text-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-xl inline-block">
-        Teletransportarse al Inicio
-      </a>
-      <a href="/" class="absolute -inset-0.5 bg-gradient-to-r from-chocolate-500 to-beige-500 rounded-full blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse-slow"></a>
+
+    {/* Decoración adicional */}
+    <div class="absolute inset-0 pointer-events-none">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(68,18,8,0.05),rgba(0,0,0,0))] animate-pulse" style="animation-duration: 4s;"></div>
+      <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-chocolate-400/20 to-transparent"></div>
+      <div class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-chocolate-400/20 to-transparent"></div>
     </div>
   </main>
 </Layout>
 
-<style>
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
+<script>
+  // Efecto de partículas
+  function createParticles() {
+    const container = document.getElementById('particles');
+    const particleCount = 30;
+
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      
+      // Posición inicial aleatoria
+      const x = Math.random() * 100;
+      const y = Math.random() * 100;
+      particle.style.left = `${x}%`;
+      particle.style.top = `${y}%`;
+      
+      // Tamaño aleatorio
+      const size = Math.random() * 3;
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      
+      // Animación
+      particle.style.animation = `floatParticle ${10 + Math.random() * 20}s linear infinite`;
+      particle.style.animationDelay = `${-Math.random() * 10}s`;
+      
+      container?.appendChild(particle);
+    }
   }
 
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
+  document.addEventListener('astro:page-load', createParticles);
+</script>
+
+<style>
+  /* Estilo y animación de las partículas */
+  .particle {
+    position: absolute;
+    background-color: rgba(168, 85, 47, 0.2);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  @keyframes floatParticle {
+    0% {
+      transform: translate(0, 0) rotate(0deg);
+      opacity: 0;
+    }
+    25% {
+      opacity: 0.5;
+    }
+    75% {
+      opacity: 0.5;
+    }
+    100% {
+      transform: translate(
+        calc(100px * cos(${Math.random() * 360}deg)),
+        calc(100px * sin(${Math.random() * 360}deg))
+      ) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  /* Efecto glitch para el texto 404 */
+  .glitch-text {
+    position: relative;
+    text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75),
+                -0.05em -0.025em 0 rgba(0, 255, 0, 0.75),
+                0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+    animation: glitch 500ms infinite;
+  }
+
+  .glitch-text::before,
+  .glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .glitch-text::before {
+    animation: glitch 650ms infinite;
+    clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+    transform: translate(-0.025em, -0.0125em);
+    opacity: 0.75;
+  }
+
+  .glitch-text::after {
+    animation: glitch 375ms infinite;
+    clip-path: polygon(0 80%, 100% 20%, 100% 100%, 0 100%);
+    transform: translate(0.0125em, 0.025em);
+    opacity: 0.75;
+  }
+
+  @keyframes glitch {
+    0% {
+      text-shadow: 0.05em 0 0 rgba(168, 85, 47, 0.75),
+                  -0.05em -0.025em 0 rgba(168, 85, 47, 0.75),
+                  0.025em 0.05em 0 rgba(168, 85, 47, 0.75);
+    }
+    14% {
+      text-shadow: 0.05em 0 0 rgba(168, 85, 47, 0.75),
+                  -0.05em -0.025em 0 rgba(168, 85, 47, 0.75),
+                  0.025em 0.05em 0 rgba(168, 85, 47, 0.75);
+    }
+    15% {
+      text-shadow: -0.05em -0.025em 0 rgba(168, 85, 47, 0.75),
+                  0.025em 0.025em 0 rgba(168, 85, 47, 0.75),
+                  -0.05em -0.05em 0 rgba(168, 85, 47, 0.75);
+    }
+    49% {
+      text-shadow: -0.05em -0.025em 0 rgba(168, 85, 47, 0.75),
+                  0.025em 0.025em 0 rgba(168, 85, 47, 0.75),
+                  -0.05em -0.05em 0 rgba(168, 85, 47, 0.75);
+    }
+    50% {
+      text-shadow: 0.025em 0.05em 0 rgba(168, 85, 47, 0.75),
+                  0.05em 0 0 rgba(168, 85, 47, 0.75),
+                  0 -0.05em 0 rgba(168, 85, 47, 0.75);
+    }
+    99% {
+      text-shadow: 0.025em 0.05em 0 rgba(168, 85, 47, 0.75),
+                  0.05em 0 0 rgba(168, 85, 47, 0.75),
+                  0 -0.05em 0 rgba(168, 85, 47, 0.75);
+    }
+    100% {
+      text-shadow: -0.025em 0 0 rgba(168, 85, 47, 0.75),
+                  -0.025em -0.025em 0 rgba(168, 85, 47, 0.75),
+                  -0.025em -0.05em 0 rgba(168, 85, 47, 0.75);
+    }
+  }
+
+  /* Animaciones para la X */
+  @keyframes glitch-1 {
+    0%, 100% { transform: rotate(45deg) translateX(0); }
+    25% { transform: rotate(45deg) translateX(2px); }
+    75% { transform: rotate(45deg) translateX(-2px); }
+  }
+
+  @keyframes glitch-2 {
+    0%, 100% { transform: rotate(-45deg) translateX(0); }
+    25% { transform: rotate(-45deg) translateX(-2px); }
+    75% { transform: rotate(-45deg) translateX(2px); }
+  }
+
+  .animate-glitch-1 {
+    animation: glitch-1 250ms ease-in-out infinite;
+  }
+
+  .animate-glitch-2 {
+    animation: glitch-2 250ms ease-in-out infinite;
   }
 </style>
-
-<script>
-  function crearEfectoGlitch() {
-    const contenedor = document.querySelector('main');
-    const textoGlitch = document.createElement('div');
-    textoGlitch.className = 'absolute text-9xl font-extrabold text-chocolate-600 opacity-0 animate-float';
-    textoGlitch.style.userSelect = 'none';
-    textoGlitch.style.pointerEvents = 'none';
-    textoGlitch.textContent = '404';
-
-    contenedor.appendChild(textoGlitch);
-
-    setInterval(() => {
-      const x = Math.random() * window.innerWidth;
-      const y = Math.random() * window.innerHeight;
-      textoGlitch.style.left = `${x}px`;
-      textoGlitch.style.top = `${y}px`;
-      textoGlitch.style.opacity = '0.1';
-      textoGlitch.style.transform = `scale(${Math.random() * 0.5 + 0.5})`;
-      
-      setTimeout(() => {
-        textoGlitch.style.opacity = '0';
-      }, 100);
-    }, 2000);
-  }
-
-  document.addEventListener('astro:page-load', crearEfectoGlitch);
-</script>

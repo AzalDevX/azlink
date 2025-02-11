@@ -1,60 +1,228 @@
 ---
-//src/pages/[...slug].astro
 import Layout from '../layouts/Layout.astro';
-import links from '../data/links.json';
+import { collection, query, where, getDocs, updateDoc, increment } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
-export function getStaticPaths() {
-  return Object.keys(links).map(slug => ({ params: { slug } }));
-}
+export const prerender = false;
 
 const { slug } = Astro.params;
-const destination = links[slug];
+
+// Buscar el documento por shortCode
+const q = query(collection(db, "links"), where("shortCode", "==", slug));
+const querySnapshot = await getDocs(q);
+let destination = null;
+let docRef = null;
+
+if (!querySnapshot.empty) {
+  const doc = querySnapshot.docs[0];
+  destination = doc.data().url;
+  docRef = doc.ref;
+  
+  // Incrementar el contador de clicks
+  await updateDoc(docRef, {
+    clicks: increment(1)
+  });
+} else {
+  // Si no se encuentra el link, redirigir a 404
+  return Astro.redirect('/404');
+}
 ---
 
 <Layout title="Redirigiendo... | AzLink">
-  <main class="min-h-screen bg-gradient-to-br from-beige-100 to-chocolate-100 p-8 flex flex-col items-center justify-center">
-    <div class="text-center">
-      <div class="mb-8">
-        <div class="inline-block animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-chocolate-600"></div>
+  <main class="relative min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-8 overflow-hidden">
+    {/* Fondo con efecto de partículas */}
+    <div class="absolute inset-0">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(68,18,8,0.1),rgba(0,0,0,0))]"></div>
+      <div id="particles" class="absolute inset-0"></div>
+    </div>
+
+    {/* Contenedor principal */}
+    <div class="relative z-10 flex flex-col items-center justify-center text-center max-w-md mx-auto">
+      {/* Loader animado */}
+      <div class="relative mb-12">
+        {/* Anillos giratorios */}
+        <div class="relative size-32">
+          {[0, 1, 2].map((i) => (
+            <div class={`absolute inset-0 origin-[50%_50%] animate-spin`} style={`animation-duration: ${3 + i}s`}>
+              <div class="h-full w-full rounded-full border-2 border-chocolate-400/30 border-t-chocolate-400"></div>
+            </div>
+          ))}
+          
+          {/* Círculo central con pulso */}
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="relative size-12">
+              <div class="absolute inset-0 rounded-full bg-chocolate-400/20 animate-ping"></div>
+              <div class="relative size-full rounded-full bg-chocolate-400/30 backdrop-blur-sm flex items-center justify-center">
+                <svg 
+                  class="size-6 text-chocolate-300" 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  stroke-width="2" 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round"
+                >
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Líneas de progreso */}
+        <div class="absolute -inset-4 -z-10">
+          {[0, 45, 90, 135].map((rotation) => (
+            <div 
+              class="absolute inset-0 origin-center"
+              style={`transform: rotate(${rotation}deg)`}
+            >
+              <div class="h-full w-[1px] mx-auto bg-gradient-to-b from-transparent via-chocolate-400/20 to-transparent"></div>
+            </div>
+          ))}
+        </div>
       </div>
-      <h1 class="text-4xl font-bold text-chocolate-700 mb-4">Redirigiendo...</h1>
-      <p class="text-chocolate-600 mb-8">Serás redirigido automáticamente</p>
-      {destination ? (
-        <a 
-          href={destination} 
-          id="redirect-link"
-          class="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-chocolate-500 to-beige-500 text-white font-semibold hover:from-chocolate-600 hover:to-beige-600 transition-all duration-300"
-        >
-          Haz clic aquí si no eres redirigido automáticamente
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-          </svg>
-        </a>
-      ) : (
-        <p class="text-red-500 font-semibold">Lo sentimos, el enlace que buscas no existe.</p>
+
+      {/* Texto con efecto de typing */}
+      <div class="space-y-4 mb-8">
+        <h1 class="text-3xl font-bold text-chocolate-400 typing-text">
+          Redirigiendo
+          <span class="dots">...</span>
+        </h1>
+        <p class="text-zinc-400 text-sm">
+          Preparando tu viaje a través del espacio digital
+        </p>
+      </div>
+
+      {/* Botón de redirección manual */}
+      {destination && (
+        <div class="relative group">
+          <a 
+            href={destination} 
+            id="redirect-link"
+            class="relative z-10 px-6 py-3 text-chocolate-300 transition-colors duration-300 hover:text-chocolate-200 flex items-center gap-2"
+          >
+            <span>Haz clic aquí si no eres redirigido</span>
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              class="size-4 transition-transform duration-300 group-hover:translate-x-1" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              stroke-width="2" 
+              stroke-linecap="round" 
+              stroke-linejoin="round"
+            >
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
+          {/* Efecto de hover del botón */}
+          <div class="absolute inset-0 bg-zinc-900 border border-zinc-800 rounded-lg transition-transform duration-300 group-hover:scale-105"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-chocolate-900/20 to-chocolate-800/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </div>
       )}
     </div>
   </main>
 </Layout>
 
 <script define:vars={{ destination }}>
+  // Redirección
   if (destination) {
-    // Intenta redirección inmediata
     window.location.replace(destination);
     
-    // Fallback: si la redirección no ocurre inmediatamente, configuramos un temporizador
     setTimeout(() => {
       if (window.location.href !== destination) {
         window.location.href = destination;
       }
     }, 2000);
   }
+
+  // Efecto de partículas
+  function createParticles() {
+    const container = document.getElementById('particles');
+    const particleCount = 30;
+
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      
+      // Posición inicial aleatoria
+      const x = Math.random() * 100;
+      const y = Math.random() * 100;
+      particle.style.left = `${x}%`;
+      particle.style.top = `${y}%`;
+      
+      // Tamaño aleatorio
+      const size = Math.random() * 3;
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      
+      // Animación
+      particle.style.animation = `floatParticle ${10 + Math.random() * 20}s linear infinite`;
+      particle.style.animationDelay = `${-Math.random() * 10}s`;
+      
+      container?.appendChild(particle);
+    }
+  }
+
+  document.addEventListener('astro:page-load', createParticles);
 </script>
 
 <style>
-  @keyframes gradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+  /* Animación de los puntos suspensivos */
+  .dots {
+    display: inline-block;
+    animation: dots 2s infinite;
+  }
+
+  @keyframes dots {
+    0%, 20% { content: '.'; }
+    40%, 60% { content: '..'; }
+    80%, 100% { content: '...'; }
+  }
+
+  /* Estilo y animación de las partículas */
+  .particle {
+    position: absolute;
+    background-color: rgba(168, 85, 47, 0.2);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  @keyframes floatParticle {
+    0% {
+      transform: translate(0, 0) rotate(0deg);
+      opacity: 0;
+    }
+    25% {
+      opacity: 0.5;
+    }
+    75% {
+      opacity: 0.5;
+    }
+    100% {
+      transform: translate(
+        calc(100px * cos(${Math.random() * 360}deg)),
+        calc(100px * sin(${Math.random() * 360}deg))
+      ) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  /* Efecto de typing */
+  .typing-text {
+    display: inline-block;
+    overflow: hidden;
+    border-right: 2px solid transparent;
+    animation: typing 3s steps(11) infinite;
+  }
+
+  @keyframes typing {
+    0%, 90%, 100% {
+      border-color: transparent;
+    }
+    50% {
+      border-color: rgb(168, 85, 47);
+    }
   }
 </style>
