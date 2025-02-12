@@ -1,3 +1,4 @@
+//src/pages/api/redirect/[shortCode].ts
 import type { APIRoute } from 'astro';
 import { linkService } from '../../../lib/linkService';
 
