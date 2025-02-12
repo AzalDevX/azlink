@@ -10,11 +10,4 @@ export default defineConfig({
     functionPerRoute: true,
   }),
   integrations: [tailwind()],
-  vite: {
-    build: {
-      rollupOptions: {
-        external: ['node:async_hooks'], // Esto puede ser necesario para evitar errores con Firebase
-      },
-    },
-  },
 });

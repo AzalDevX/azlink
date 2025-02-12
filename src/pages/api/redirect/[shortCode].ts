@@ -1,6 +1,8 @@
-//src/pages/api/redirect/[shortCode].ts
+// src/pages/api/redirect/[shortCode].ts
 import type { APIRoute } from 'astro';
 import { linkService } from '../../../lib/linkService';
+
+export const prerender = false; // 👈 Esto evita que Astro intente prerenderizar la API
 
 export const get: APIRoute = async ({ params, redirect }) => {
   const { shortCode } = params;
